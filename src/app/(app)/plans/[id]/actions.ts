@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { refresh } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export async function addExercise(formData: FormData) {
@@ -67,6 +68,8 @@ export async function addExercise(formData: FormData) {
   if (insertError) {
     throw new Error(insertError.message);
   }
+
+  refresh();
 }
 
 export async function removeExercise(formData: FormData) {
@@ -81,6 +84,8 @@ export async function removeExercise(formData: FormData) {
   if (error) {
     throw new Error(error.message);
   }
+
+  refresh();
 }
 
 export async function deleteRoutine(formData: FormData) {
