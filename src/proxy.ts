@@ -25,8 +25,6 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -51,6 +49,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { signup, type SignupFormState } from "@/app/signup/actions";
+import { signup, type SignupFormState } from "@/app/(auth)/signup/actions";
 
 const initialState: SignupFormState = { error: null, success: false };
 
