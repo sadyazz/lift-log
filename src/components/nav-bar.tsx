@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Dumbbell } from "lucide-react";
+import { Home, Dumbbell, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "home", icon: Home },
   { href: "/plans", label: "plans", icon: Dumbbell },
+  { href: "/history", label: "history", icon: History },
 ];
 
 export function NavBar() {
@@ -17,7 +18,8 @@ export function NavBar() {
     <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-[max(env(safe-area-inset-bottom),1rem)] pt-2">
       <div className="flex items-center gap-1 rounded-full border border-border bg-background/95 px-2 py-2 shadow-lg backdrop-blur">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href;
+          const isActive =
+            pathname === href || (href !== "/" && pathname.startsWith(href));
           return (
             <Link
               key={href}
