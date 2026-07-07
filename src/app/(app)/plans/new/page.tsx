@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 export default function NewPlanPage() {
   return (
     <div className="mx-auto flex max-w-md flex-col gap-6 p-6">
-      <h1 className="text-2xl font-bold">new plan</h1>
+      <h1 className="text-4xl font-extrabold tracking-tight">new plan</h1>
 
       <form action={createRoutine} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
@@ -21,7 +21,9 @@ export default function NewPlanPage() {
           <WeekdayPicker />
         </div>
 
-        <Button type="submit">create plan</Button>
+        <Button type="submit" className="rounded-lg">
+          create plan
+        </Button>
       </form>
 
       <Link href="/plans" className="text-sm text-muted-foreground underline">

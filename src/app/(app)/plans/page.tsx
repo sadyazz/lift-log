@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,10 +14,14 @@ export default async function PlansPage() {
     .order("created_at", { ascending: true });
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4 p-6">
+    <div className="mx-auto flex max-w-md flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">plans</h1>
-        <Button render={<Link href="/plans/new" />} nativeButton={false}>
+        <h1 className="text-4xl font-extrabold tracking-tight">plans</h1>
+        <Button
+          render={<Link href="/plans/new" />}
+          nativeButton={false}
+          className="rounded-lg"
+        >
           new plan
         </Button>
       </div>
@@ -30,17 +35,17 @@ export default async function PlansPage() {
       <div className="flex flex-col gap-3">
         {routines?.map((routine) => (
           <Link key={routine.id} href={`/plans/${routine.id}`}>
-            <Card className="flex flex-row items-center justify-between p-4">
+            <Card className="flex flex-row items-center justify-between rounded-2xl p-5">
               <div>
-                <p className="font-semibold">{routine.name}</p>
+                <p className="text-lg font-bold">{routine.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {routine.weekdays.map((d) => WEEKDAY_LABELS[d]).join(", ") ||
                     "no days set"}
+                  {" · "}
+                  {routine.routine_exercises.length} exercises
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {routine.routine_exercises.length} exercises
-              </p>
+              <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
             </Card>
           </Link>
         ))}

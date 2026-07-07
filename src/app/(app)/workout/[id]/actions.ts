@@ -79,7 +79,7 @@ export async function addWorkoutExercise(formData: FormData) {
   refresh();
 }
 
-export async function removeWorkoutExercise(formData: FormData) {
+export async function removeWorkoutExercise(workoutId: string, formData: FormData) {
   const workoutExerciseId = formData.get("workoutExerciseId") as string;
 
   const supabase = await createClient();
@@ -92,13 +92,41 @@ export async function removeWorkoutExercise(formData: FormData) {
     throw new Error(error.message);
   }
 
-  refresh();
+  redirect(`/workout/${workoutId}`);
+}
+
+async function saveSets(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  formData: FormData
+) {
+  const setIds = (formData.get("setIds") as string).split(",").filter(Boolean);
+
+  for (const setId of setIds) {
+    const weightValue = formData.get(`weight__${setId}`);
+    const repsValue = formData.get(`reps__${setId}`);
+    const isWarmup = formData.get(`warmup__${setId}`) === "on";
+
+    const { error } = await supabase
+      .from("workout_sets")
+      .update({
+        weight: weightValue ? Number(weightValue) : null,
+        reps: repsValue ? Number(repsValue) : null,
+        is_warmup: isWarmup,
+      })
+      .eq("id", setId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
 }
 
 export async function addSet(formData: FormData) {
   const workoutExerciseId = formData.get("workoutExerciseId") as string;
 
   const supabase = await createClient();
+
+  await saveSets(supabase, formData);
 
   const { data: lastSet } = await supabase
     .from("workout_sets")
@@ -133,40 +161,28 @@ export async function removeSet(setId: string, _formData: FormData) {
   refresh();
 }
 
-export async function updateExercise(formData: FormData) {
-  const workoutExerciseId = formData.get("workoutExerciseId") as string;
-  const setIds = (formData.get("setIds") as string).split(",").filter(Boolean);
-  const completed = formData.get("completed") === "on";
-
+export async function toggleWarmupSet(
+  setId: string,
+  isWarmup: boolean,
+  _formData: FormData
+) {
   const supabase = await createClient();
+  const { error } = await supabase
+    .from("workout_sets")
+    .update({ is_warmup: isWarmup })
+    .eq("id", setId);
 
-  const { error: exerciseError } = await supabase
-    .from("workout_exercises")
-    .update({ completed })
-    .eq("id", workoutExerciseId);
-
-  if (exerciseError) {
-    throw new Error(exerciseError.message);
-  }
-
-  for (const setId of setIds) {
-    const weightValue = formData.get(`weight__${setId}`);
-    const repsValue = formData.get(`reps__${setId}`);
-    const isWarmup = formData.get(`warmup__${setId}`) === "on";
-
-    const { error } = await supabase
-      .from("workout_sets")
-      .update({
-        weight: weightValue ? Number(weightValue) : null,
-        reps: repsValue ? Number(repsValue) : null,
-        is_warmup: isWarmup,
-      })
-      .eq("id", setId);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+  if (error) {
+    throw new Error(error.message);
   }
 
   refresh();
+}
+
+export async function updateExercise(workoutId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  await saveSets(supabase, formData);
+
+  redirect(`/workout/${workoutId}`);
 }

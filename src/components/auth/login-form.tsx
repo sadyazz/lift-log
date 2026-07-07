@@ -1,46 +1,68 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { login, type AuthFormState } from "@/app/(auth)/login/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const initialState: AuthFormState = { error: null };
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">email</span>
-        <input
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="email">email</Label>
+        <Input
+          id="email"
           type="email"
           name="email"
           required
           autoComplete="email"
-          className="rounded-md border border-gray-300 px-3 py-2"
+          inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="next"
+          className="h-11"
         />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">password</span>
-        <input
-          type="password"
-          name="password"
-          required
-          autoComplete="current-password"
-          className="rounded-md border border-gray-300 px-3 py-2"
-        />
-      </label>
-      {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-black px-4 py-2 font-medium text-white disabled:opacity-50"
-      >
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="password">password</Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            required
+            autoComplete="current-password"
+            enterKeyHint="go"
+            className="h-11 pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? "hide password" : "show password"}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+          >
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        </div>
+      </div>
+      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+      <Button type="submit" disabled={pending} className="w-full py-6 text-base">
         {pending ? "logging in..." : "log in"}
-      </button>
-      <p className="text-sm text-gray-600">
-        no account? <Link href="/signup" className="underline">sign up</Link>
+      </Button>
+      <p className="text-sm text-muted-foreground">
+        no account?{" "}
+        <Link href="/signup" className="underline">
+          sign up
+        </Link>
       </p>
     </form>
   );
