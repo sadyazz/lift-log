@@ -179,10 +179,10 @@ export async function toggleWarmupSet(
   refresh();
 }
 
-export async function updateExercise(formData: FormData) {
+export async function updateExercise(workoutId: string, formData: FormData) {
   const supabase = await createClient();
 
   await saveSets(supabase, formData);
 
-  refresh();
+  redirect(`/workout/${workoutId}`);
 }

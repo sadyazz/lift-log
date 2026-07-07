@@ -10,11 +10,14 @@ export default async function HomePage() {
   const today = new Date();
   const todayString = toDateString(today);
 
-  const { data: todaysWorkout } = await supabase
+  const { data: todaysWorkouts } = await supabase
     .from("workouts")
     .select("id")
     .eq("date", todayString)
-    .maybeSingle();
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const todaysWorkout = todaysWorkouts?.[0];
 
   const monthAgo = new Date(today);
   monthAgo.setDate(today.getDate() - 29);

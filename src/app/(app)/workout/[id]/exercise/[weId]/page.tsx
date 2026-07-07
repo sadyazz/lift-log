@@ -55,7 +55,7 @@ export default async function WorkoutExercisePage({
         )}
       </div>
 
-      <form action={updateExercise} className="flex flex-col gap-3">
+      <form action={updateExercise.bind(null, id)} className="flex flex-col gap-3">
         <input type="hidden" name="workoutExerciseId" value={workoutExercise.id} />
         <input type="hidden" name="setIds" value={setIds} />
 
