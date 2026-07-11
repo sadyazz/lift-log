@@ -13,21 +13,22 @@ export default async function PlanDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: routine } = await supabase
-    .from("routines")
-    .select("id, name, weekdays")
-    .eq("id", id)
-    .single();
+  const [{ data: routine }, { data: routineExercises }] = await Promise.all([
+    supabase
+      .from("routines")
+      .select("id, name, weekdays")
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("routine_exercises")
+      .select("id, target_sets, target_reps, exercises(id, name)")
+      .eq("routine_id", id)
+      .order("position", { ascending: true }),
+  ]);
 
   if (!routine) {
     notFound();
   }
-
-  const { data: routineExercises } = await supabase
-    .from("routine_exercises")
-    .select("id, target_sets, target_reps, exercises(id, name)")
-    .eq("routine_id", id)
-    .order("position", { ascending: true });
 
   const exercises = routineExercises ?? [];
   const totalSets = exercises.reduce((sum, re) => sum + (re.target_sets ?? 0), 0);

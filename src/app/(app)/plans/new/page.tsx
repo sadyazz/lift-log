@@ -13,7 +13,7 @@ export default function NewPlanPage() {
       <form action={createRoutine} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">name</Label>
-          <Input id="name" name="name" placeholder="leg day" required />
+          <Input id="name" name="name" placeholder="leg day" required className="h-11" />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -21,7 +21,7 @@ export default function NewPlanPage() {
           <WeekdayPicker />
         </div>
 
-        <Button type="submit" className="rounded-lg">
+        <Button type="submit" className="w-full py-6 text-base">
           create plan
         </Button>
       </form>

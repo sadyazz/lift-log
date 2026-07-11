@@ -10,23 +10,24 @@ export default async function HomePage() {
   const today = new Date();
   const todayString = toDateString(today);
 
-  const { data: todaysWorkouts } = await supabase
-    .from("workouts")
-    .select("id")
-    .eq("date", todayString)
-    .order("created_at", { ascending: false })
-    .limit(1);
-
-  const todaysWorkout = todaysWorkouts?.[0];
-
   const monthAgo = new Date(today);
   monthAgo.setDate(today.getDate() - 29);
 
-  const { data: recentWorkouts } = await supabase
-    .from("workouts")
-    .select("date")
-    .gte("date", toDateString(monthAgo))
-    .lte("date", todayString);
+  const [{ data: todaysWorkouts }, { data: recentWorkouts }] = await Promise.all([
+    supabase
+      .from("workouts")
+      .select("id")
+      .eq("date", todayString)
+      .order("created_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("workouts")
+      .select("date")
+      .gte("date", toDateString(monthAgo))
+      .lte("date", todayString),
+  ]);
+
+  const todaysWorkout = todaysWorkouts?.[0];
 
   const activeDates = new Set(recentWorkouts?.map((w) => w.date) ?? []);
 

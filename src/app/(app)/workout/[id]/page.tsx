@@ -13,21 +13,22 @@ export default async function WorkoutPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: workout } = await supabase
-    .from("workouts")
-    .select("id, date, status, routines(name)")
-    .eq("id", id)
-    .single();
+  const [{ data: workout }, { data: workoutExercises }] = await Promise.all([
+    supabase
+      .from("workouts")
+      .select("id, date, status, routines(name)")
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("workout_exercises")
+      .select("id, exercises(id, name), workout_sets(id, reps)")
+      .eq("workout_id", id)
+      .order("position", { ascending: true }),
+  ]);
 
   if (!workout) {
     notFound();
   }
-
-  const { data: workoutExercises } = await supabase
-    .from("workout_exercises")
-    .select("id, exercises(id, name), workout_sets(id, reps)")
-    .eq("workout_id", id)
-    .order("position", { ascending: true });
 
   const exercises = workoutExercises ?? [];
 
