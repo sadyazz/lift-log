@@ -101,23 +101,26 @@ async function saveSets(
 ) {
   const setIds = (formData.get("setIds") as string).split(",").filter(Boolean);
 
-  for (const setId of setIds) {
-    const weightValue = formData.get(`weight__${setId}`);
-    const repsValue = formData.get(`reps__${setId}`);
-    const isWarmup = formData.get(`warmup__${setId}`) === "on";
+  const results = await Promise.all(
+    setIds.map((setId) => {
+      const weightValue = formData.get(`weight__${setId}`);
+      const repsValue = formData.get(`reps__${setId}`);
+      const isWarmup = formData.get(`warmup__${setId}`) === "on";
 
-    const { error } = await supabase
-      .from("workout_sets")
-      .update({
-        weight: weightValue ? Number(weightValue) : null,
-        reps: repsValue ? Number(repsValue) : null,
-        is_warmup: isWarmup,
-      })
-      .eq("id", setId);
+      return supabase
+        .from("workout_sets")
+        .update({
+          weight: weightValue ? Number(weightValue) : null,
+          reps: repsValue ? Number(repsValue) : null,
+          is_warmup: isWarmup,
+        })
+        .eq("id", setId);
+    })
+  );
 
-    if (error) {
-      throw new Error(error.message);
-    }
+  const failed = results.find((result) => result.error);
+  if (failed?.error) {
+    throw new Error(failed.error.message);
   }
 }
 
@@ -126,15 +129,16 @@ export async function addSet(formData: FormData) {
 
   const supabase = await createClient();
 
-  await saveSets(supabase, formData);
-
-  const { data: lastSet } = await supabase
-    .from("workout_sets")
-    .select("set_number")
-    .eq("workout_exercise_id", workoutExerciseId)
-    .order("set_number", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [, { data: lastSet }] = await Promise.all([
+    saveSets(supabase, formData),
+    supabase
+      .from("workout_sets")
+      .select("set_number")
+      .eq("workout_exercise_id", workoutExerciseId)
+      .order("set_number", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const nextSetNumber = (lastSet?.set_number ?? 0) + 1;
 

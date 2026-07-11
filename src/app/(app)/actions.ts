@@ -6,6 +6,7 @@ import { toDateString } from "@/lib/date";
 
 export async function startWorkout(formData: FormData) {
   const routineId = (formData.get("routineId") as string) || null;
+  const date = (formData.get("date") as string) || toDateString(new Date());
 
   const supabase = await createClient();
   const {
@@ -16,14 +17,12 @@ export async function startWorkout(formData: FormData) {
     redirect("/login");
   }
 
-  const today = toDateString(new Date());
-
   const { data: workout, error } = await supabase
     .from("workouts")
     .insert({
       user_id: user.id,
       routine_id: routineId,
-      date: today,
+      date,
     })
     .select("id")
     .single();

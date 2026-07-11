@@ -37,6 +37,7 @@ export function MonthCalendar({
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const today = new Date();
+  const todayString = toDateString(today);
   const isCurrentMonth =
     today.getFullYear() === year && today.getMonth() + 1 === month;
 
@@ -85,6 +86,7 @@ export function MonthCalendar({
           const dateString = toDateString(date);
           const isActive = activeDates.has(dateString);
           const isToday = isCurrentMonth && day === today.getDate();
+          const isFuture = dateString > todayString;
 
           const cell = (
             <div
@@ -93,7 +95,8 @@ export function MonthCalendar({
                 isActive
                   ? "border-transparent bg-primary text-primary-foreground"
                   : "border-border text-foreground",
-                isToday && !isActive && "border-2 border-foreground"
+                isToday && !isActive && "border-2 border-foreground",
+                isFuture && "opacity-40"
               )}
             >
               {day}
@@ -102,7 +105,7 @@ export function MonthCalendar({
 
           return (
             <div key={dateString}>
-              {isActive ? <Link href={`/history/${dateString}`}>{cell}</Link> : cell}
+              {isFuture ? cell : <Link href={`/history/${dateString}`}>{cell}</Link>}
             </div>
           );
         })}

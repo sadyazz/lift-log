@@ -64,7 +64,7 @@ export function StreakCalendar({
 
           return (
             <div key={dateString}>
-              {isActive ? <Link href={`/history/${dateString}`}>{cell}</Link> : cell}
+              <Link href={`/history/${dateString}`}>{cell}</Link>
             </div>
           );
         })}

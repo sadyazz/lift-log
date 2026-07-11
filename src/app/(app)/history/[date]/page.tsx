@@ -7,6 +7,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { StartWorkoutPicker } from "@/components/workout/start-workout-picker";
+import { toDateString } from "@/lib/date";
 
 export default async function HistoryDatePage({
   params,
@@ -14,6 +16,11 @@ export default async function HistoryDatePage({
   params: Promise<{ date: string }>;
 }) {
   const { date } = await params;
+
+  if (date > toDateString(new Date())) {
+    notFound();
+  }
+
   const supabase = await createClient();
 
   const { data: workouts } = await supabase
@@ -23,7 +30,15 @@ export default async function HistoryDatePage({
     .order("created_at", { ascending: true });
 
   if (!workouts || workouts.length === 0) {
-    notFound();
+    return (
+      <div className="mx-auto flex max-w-md flex-col gap-6 p-6">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">add a workout</h1>
+          <p className="text-sm text-muted-foreground">{date}</p>
+        </div>
+        <StartWorkoutPicker date={date} />
+      </div>
+    );
   }
 
   const sessions = await Promise.all(
@@ -87,13 +102,13 @@ export default async function HistoryDatePage({
                         {we.workout_sets.length === 0 && (
                           <p className="text-sm text-muted-foreground">no sets logged</p>
                         )}
-                        {we.workout_sets.map((set, si) => (
+                        {we.workout_sets.map((set, i) => (
                           <div
                             key={set.id}
                             className="flex items-center justify-between text-sm"
                           >
                             <span className="flex items-center gap-1.5 text-muted-foreground">
-                              set {si + 1} · {set.reps ?? "-"} reps
+                              set {i + 1} · {set.reps ?? "-"} reps
                               {set.is_warmup && <Flame className="size-3.5" />}
                             </span>
                             <span className="font-medium">{set.weight ?? "-"} kg</span>
