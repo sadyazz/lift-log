@@ -41,13 +41,15 @@ export default async function WorkoutPage({
           </h1>
           <p className="text-sm text-muted-foreground">{workout.date}</p>
         </div>
-        {workout.status === "in_progress" && (
+        {workout.status === "in_progress" ? (
           <form action={finishWorkout}>
             <input type="hidden" name="workoutId" value={workout.id} />
             <Button type="submit" className="rounded-lg">
               finish
             </Button>
           </form>
+        ) : (
+          <span className="text-sm font-medium text-muted-foreground">saved</span>
         )}
       </div>
 

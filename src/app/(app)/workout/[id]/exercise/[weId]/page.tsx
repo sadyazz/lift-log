@@ -80,6 +80,8 @@ export default async function WorkoutExercisePage({
               <Input
                 key={`weight-${set.id}-${set.weight}`}
                 type="number"
+                inputMode="decimal"
+                step="any"
                 name={`weight__${set.id}`}
                 defaultValue={set.weight ?? ""}
                 className="h-11 w-16 border-none bg-transparent px-0 text-xl font-bold shadow-none focus-visible:ring-0"

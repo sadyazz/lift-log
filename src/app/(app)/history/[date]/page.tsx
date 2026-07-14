@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +8,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { StartWorkoutPicker } from "@/components/workout/start-workout-picker";
 import { toDateString } from "@/lib/date";
 
@@ -68,18 +70,28 @@ export default async function HistoryDatePage({
 
       {sessions.map(({ workout, exercises, exerciseNames }, i) => (
         <div key={workout.id} className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">
-              {workout.routines?.name ?? "workout"}
-              {sessions.length > 1 && (
-                <span className="ml-2 text-base font-normal text-muted-foreground">
-                  session {i + 1}
-                </span>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight">
+                {workout.routines?.name ?? "workout"}
+                {sessions.length > 1 && (
+                  <span className="ml-2 text-base font-normal text-muted-foreground">
+                    session {i + 1}
+                  </span>
+                )}
+              </h1>
+              {exerciseNames && (
+                <p className="mt-1 text-sm text-muted-foreground">{exerciseNames}</p>
               )}
-            </h1>
-            {exerciseNames && (
-              <p className="mt-1 text-sm text-muted-foreground">{exerciseNames}</p>
-            )}
+            </div>
+            <Button
+              render={<Link href={`/workout/${workout.id}`} />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+            >
+              edit
+            </Button>
           </div>
 
           {exercises.length === 0 ? (
