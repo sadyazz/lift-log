@@ -52,6 +52,7 @@ export function AddExerciseDrawer({ routineId }: { routineId: string }) {
                 id="targetSets"
                 name="targetSets"
                 type="number"
+                inputMode="numeric"
                 min="1"
                 className="h-11"
               />
@@ -62,6 +63,7 @@ export function AddExerciseDrawer({ routineId }: { routineId: string }) {
                 id="targetReps"
                 name="targetReps"
                 type="number"
+                inputMode="numeric"
                 min="1"
                 className="h-11"
               />

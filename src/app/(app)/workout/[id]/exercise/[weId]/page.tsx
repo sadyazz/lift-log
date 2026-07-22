@@ -89,6 +89,7 @@ export default async function WorkoutExercisePage({
               <Input
                 key={`reps-${set.id}-${set.reps}`}
                 type="number"
+                inputMode="numeric"
                 name={`reps__${set.id}`}
                 defaultValue={set.reps ?? ""}
                 className="h-11 w-16 border-none bg-transparent px-0 text-xl font-bold shadow-none focus-visible:ring-0"
