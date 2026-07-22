@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useTransition } from "react";
-import { MoreHorizontal, Flame, Copy, Trash2 } from "lucide-react";
+import { MoreHorizontal, Flame, Skull, Copy, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   toggleWarmupSet,
+  toggleFailureSet,
   duplicateSet,
   removeSet,
 } from "@/app/(app)/workout/[id]/actions";
@@ -17,9 +18,11 @@ import {
 export function SetRowMenu({
   setId,
   isWarmup,
+  isFailure,
 }: {
   setId: string;
   isWarmup: boolean;
+  isFailure: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -44,6 +47,16 @@ export function SetRowMenu({
         >
           <Flame className="size-4" />
           {isWarmup ? "unmark warmup" : "mark as warmup"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() =>
+            startTransition(async () => {
+              await toggleFailureSet(setId, !isFailure, new FormData());
+            })
+          }
+        >
+          <Skull className="size-4" />
+          {isFailure ? "unmark until failure" : "mark until failure"}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>

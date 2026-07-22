@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Flame } from "lucide-react";
+import { Flame, Skull } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   Accordion,
@@ -48,7 +48,7 @@ export default async function HistoryDatePage({
       const { data: workoutExercises } = await supabase
         .from("workout_exercises")
         .select(
-          "id, exercises(id, name), workout_sets(id, set_number, weight, reps, is_warmup)"
+          "id, exercises(id, name), workout_sets(id, set_number, weight, reps, is_warmup, is_failure)"
         )
         .eq("workout_id", workout.id)
         .order("position", { ascending: true })
@@ -122,6 +122,7 @@ export default async function HistoryDatePage({
                             <span className="flex items-center gap-1.5 text-muted-foreground">
                               set {i + 1} · {set.reps ?? "-"} reps
                               {set.is_warmup && <Flame className="size-3.5" />}
+                              {set.is_failure && <Skull className="size-3.5" />}
                             </span>
                             <span className="font-medium">{set.weight ?? "-"} kg</span>
                           </div>

@@ -22,7 +22,7 @@ export default async function WorkoutExercisePage({
   const { data: workoutExercise } = await supabase
     .from("workout_exercises")
     .select(
-      "id, exercises(id, name, equipment), workout_sets(id, set_number, weight, reps, is_warmup)"
+      "id, exercises(id, name, equipment), workout_sets(id, set_number, weight, reps, is_warmup, is_failure)"
     )
     .eq("id", weId)
     .eq("workout_id", id)
@@ -95,7 +95,11 @@ export default async function WorkoutExercisePage({
                 defaultValue={set.reps ?? ""}
                 className="h-11 w-16 border-none bg-transparent px-0 text-xl font-bold shadow-none focus-visible:ring-0"
               />
-              <SetRowMenu setId={set.id} isWarmup={set.is_warmup} />
+              <SetRowMenu
+                setId={set.id}
+                isWarmup={set.is_warmup}
+                isFailure={set.is_failure}
+              />
             </div>
           ))}
         </div>

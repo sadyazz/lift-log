@@ -167,7 +167,7 @@ export async function duplicateSet(setId: string, formData: FormData) {
       reps: repsValue ? Number(repsValue) : null,
     })
     .eq("id", setId)
-    .select("workout_exercise_id, weight, reps, is_warmup")
+    .select("workout_exercise_id, weight, reps, is_warmup, is_failure")
     .single();
 
   if (!original) {
@@ -190,6 +190,7 @@ export async function duplicateSet(setId: string, formData: FormData) {
     weight: original.weight,
     reps: original.reps,
     is_warmup: original.is_warmup,
+    is_failure: original.is_failure,
   });
 
   if (error) {
@@ -219,6 +220,24 @@ export async function toggleWarmupSet(
   const { error } = await supabase
     .from("workout_sets")
     .update({ is_warmup: isWarmup })
+    .eq("id", setId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  refresh();
+}
+
+export async function toggleFailureSet(
+  setId: string,
+  isFailure: boolean,
+  _formData: FormData
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("workout_sets")
+    .update({ is_failure: isFailure })
     .eq("id", setId);
 
   if (error) {
