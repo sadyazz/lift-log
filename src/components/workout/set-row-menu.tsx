@@ -1,14 +1,18 @@
 "use client";
 
-import { useTransition } from "react";
-import { MoreHorizontal, Flame, Trash2 } from "lucide-react";
+import { useRef, useTransition } from "react";
+import { MoreHorizontal, Flame, Copy, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toggleWarmupSet, removeSet } from "@/app/(app)/workout/[id]/actions";
+import {
+  toggleWarmupSet,
+  duplicateSet,
+  removeSet,
+} from "@/app/(app)/workout/[id]/actions";
 
 export function SetRowMenu({
   setId,
@@ -18,10 +22,12 @@ export function SetRowMenu({
   isWarmup: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        ref={triggerRef}
         type="button"
         disabled={isPending}
         className="flex size-8 items-center justify-center text-muted-foreground"
@@ -38,6 +44,28 @@ export function SetRowMenu({
         >
           <Flame className="size-4" />
           {isWarmup ? "unmark warmup" : "mark as warmup"}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() =>
+            startTransition(async () => {
+              const row = triggerRef.current?.closest(`[data-set-row="${setId}"]`);
+              const weightInput = row?.querySelector<HTMLInputElement>(
+                `input[name="weight__${setId}"]`
+              );
+              const repsInput = row?.querySelector<HTMLInputElement>(
+                `input[name="reps__${setId}"]`
+              );
+
+              const formData = new FormData();
+              if (weightInput) formData.set(`weight__${setId}`, weightInput.value);
+              if (repsInput) formData.set(`reps__${setId}`, repsInput.value);
+
+              await duplicateSet(setId, formData);
+            })
+          }
+        >
+          <Copy className="size-4" />
+          duplicate set
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"

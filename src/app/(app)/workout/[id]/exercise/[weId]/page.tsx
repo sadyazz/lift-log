@@ -74,6 +74,7 @@ export default async function WorkoutExercisePage({
           {sets.map((set, i) => (
             <div
               key={set.id}
+              data-set-row={set.id}
               className="grid grid-cols-[2.5rem_4rem_1fr_2.5rem] items-center gap-2 py-5"
             >
               <span className="text-sm text-muted-foreground">{i + 1}</span>

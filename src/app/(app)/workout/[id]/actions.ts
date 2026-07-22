@@ -154,6 +154,51 @@ export async function addSet(formData: FormData) {
   refresh();
 }
 
+export async function duplicateSet(setId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const weightValue = formData.get(`weight__${setId}`);
+  const repsValue = formData.get(`reps__${setId}`);
+
+  const { data: original } = await supabase
+    .from("workout_sets")
+    .update({
+      weight: weightValue ? Number(weightValue) : null,
+      reps: repsValue ? Number(repsValue) : null,
+    })
+    .eq("id", setId)
+    .select("workout_exercise_id, weight, reps, is_warmup")
+    .single();
+
+  if (!original) {
+    throw new Error("set not found");
+  }
+
+  const { data: lastSet } = await supabase
+    .from("workout_sets")
+    .select("set_number")
+    .eq("workout_exercise_id", original.workout_exercise_id)
+    .order("set_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextSetNumber = (lastSet?.set_number ?? 0) + 1;
+
+  const { error } = await supabase.from("workout_sets").insert({
+    workout_exercise_id: original.workout_exercise_id,
+    set_number: nextSetNumber,
+    weight: original.weight,
+    reps: original.reps,
+    is_warmup: original.is_warmup,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  refresh();
+}
+
 export async function removeSet(setId: string, _formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("workout_sets").delete().eq("id", setId);
