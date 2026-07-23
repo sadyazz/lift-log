@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+function parseWeight(value: FormDataEntryValue | null): number | null {
+  if (!value) return null;
+  const parsed = Number(String(value).replace(",", "."));
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 export async function finishWorkout(formData: FormData) {
   const workoutId = formData.get("workoutId") as string;
 
@@ -146,7 +152,7 @@ async function saveSets(
       return supabase
         .from("workout_sets")
         .update({
-          weight: weightValue ? Number(weightValue) : null,
+          weight: parseWeight(weightValue),
           reps: repsValue ? Number(repsValue) : null,
           is_warmup: isWarmup,
         })
@@ -199,7 +205,7 @@ export async function duplicateSet(setId: string, formData: FormData) {
   const { data: original } = await supabase
     .from("workout_sets")
     .update({
-      weight: weightValue ? Number(weightValue) : null,
+      weight: parseWeight(weightValue),
       reps: repsValue ? Number(repsValue) : null,
     })
     .eq("id", setId)
