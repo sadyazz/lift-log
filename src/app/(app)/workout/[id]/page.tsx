@@ -13,18 +13,23 @@ export default async function WorkoutPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: workout }, { data: workoutExercises }] = await Promise.all([
-    supabase
-      .from("workouts")
-      .select("id, date, status, routines(name)")
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("workout_exercises")
-      .select("id, exercises(id, name), workout_sets(id, reps)")
-      .eq("workout_id", id)
-      .order("position", { ascending: true }),
-  ]);
+  const [{ data: workout }, { data: workoutExercises }, { data: allExercises }] =
+    await Promise.all([
+      supabase
+        .from("workouts")
+        .select("id, date, status, routines(name)")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("workout_exercises")
+        .select("id, exercises(id, name), workout_sets(id, reps)")
+        .eq("workout_id", id)
+        .order("position", { ascending: true }),
+      supabase
+        .from("exercises")
+        .select("id, name, muscle_group")
+        .order("name", { ascending: true }),
+    ]);
 
   if (!workout) {
     notFound();
@@ -66,7 +71,7 @@ export default async function WorkoutPage({
             </p>
           </Link>
         ))}
-        <AddWorkoutExerciseDrawer workoutId={workout.id} />
+        <AddWorkoutExerciseDrawer workoutId={workout.id} exercises={allExercises ?? []} />
       </div>
     </div>
   );

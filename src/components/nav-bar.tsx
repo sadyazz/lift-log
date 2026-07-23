@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Dumbbell, History } from "lucide-react";
+import { Home, Dumbbell, ListChecks, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "home", icon: Home },
   { href: "/plans", label: "plans", icon: Dumbbell },
+  { href: "/exercises", label: "exercises", icon: ListChecks },
   { href: "/history", label: "history", icon: History },
 ];
 
@@ -20,9 +21,9 @@ export function NavBar() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-[max(env(safe-area-inset-bottom),1rem)] pt-2">
-      <div className="relative grid grid-cols-3 rounded-full border border-border bg-background/95 p-2 shadow-lg backdrop-blur">
+      <div className="relative grid grid-cols-4 rounded-full border border-border bg-background/95 p-2 shadow-lg backdrop-blur">
         <div
-          className="absolute inset-y-2 left-2 w-[calc((100%-1rem)/3)] rounded-full bg-primary transition-transform duration-300 ease-out"
+          className="absolute inset-y-2 left-2 w-[calc((100%-1rem)/4)] rounded-full bg-primary transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)` }}
         />
         {NAV_ITEMS.map(({ href, label, icon: Icon }, index) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useTransition } from "react";
+import { toast } from "sonner";
 import { MoreHorizontal, Flame, Skull, Copy, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -41,7 +42,11 @@ export function SetRowMenu({
         <DropdownMenuItem
           onClick={() =>
             startTransition(async () => {
-              await toggleWarmupSet(setId, !isWarmup, new FormData());
+              try {
+                await toggleWarmupSet(setId, !isWarmup, new FormData());
+              } catch {
+                toast.error("failed to update set");
+              }
             })
           }
         >
@@ -51,7 +56,11 @@ export function SetRowMenu({
         <DropdownMenuItem
           onClick={() =>
             startTransition(async () => {
-              await toggleFailureSet(setId, !isFailure, new FormData());
+              try {
+                await toggleFailureSet(setId, !isFailure, new FormData());
+              } catch {
+                toast.error("failed to update set");
+              }
             })
           }
         >
@@ -73,7 +82,12 @@ export function SetRowMenu({
               if (weightInput) formData.set(`weight__${setId}`, weightInput.value);
               if (repsInput) formData.set(`reps__${setId}`, repsInput.value);
 
-              await duplicateSet(setId, formData);
+              try {
+                await duplicateSet(setId, formData);
+                toast.success("set duplicated");
+              } catch {
+                toast.error("failed to duplicate set");
+              }
             })
           }
         >
@@ -84,7 +98,11 @@ export function SetRowMenu({
           variant="destructive"
           onClick={() =>
             startTransition(async () => {
-              await removeSet(setId, new FormData());
+              try {
+                await removeSet(setId, new FormData());
+              } catch {
+                toast.error("failed to delete set");
+              }
             })
           }
         >

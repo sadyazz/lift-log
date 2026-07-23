@@ -23,6 +23,8 @@ export async function finishWorkout(formData: FormData) {
 export async function addWorkoutExercise(formData: FormData) {
   const workoutId = formData.get("workoutId") as string;
   const exerciseName = (formData.get("exerciseName") as string).trim();
+  const muscleGroup = (formData.get("muscleGroup") as string) || null;
+  const equipment = (formData.get("equipment") as string)?.trim() || null;
 
   const supabase = await createClient();
   const {
@@ -45,7 +47,12 @@ export async function addWorkoutExercise(formData: FormData) {
   if (!exerciseId) {
     const { data: created, error } = await supabase
       .from("exercises")
-      .insert({ name: exerciseName, user_id: user.id })
+      .insert({
+        name: exerciseName,
+        user_id: user.id,
+        muscle_group: muscleGroup,
+        equipment,
+      })
       .select("id")
       .single();
 
@@ -74,6 +81,35 @@ export async function addWorkoutExercise(formData: FormData) {
 
   if (insertError) {
     throw new Error(insertError.message);
+  }
+
+  refresh();
+}
+
+export async function addExistingWorkoutExercise(formData: FormData) {
+  const workoutId = formData.get("workoutId") as string;
+  const exerciseId = formData.get("exerciseId") as string;
+
+  const supabase = await createClient();
+
+  const { data: lastExercise } = await supabase
+    .from("workout_exercises")
+    .select("position")
+    .eq("workout_id", workoutId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextPosition = (lastExercise?.position ?? -1) + 1;
+
+  const { error } = await supabase.from("workout_exercises").insert({
+    workout_id: workoutId,
+    exercise_id: exerciseId,
+    position: nextPosition,
+  });
+
+  if (error) {
+    throw new Error(error.message);
   }
 
   refresh();

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { AddExerciseDrawer } from "@/components/plans/add-exercise-drawer";
+import { EditRoutineExerciseDrawer } from "@/components/plans/edit-routine-exercise-drawer";
 import { removeExercise, deleteRoutine } from "./actions";
 import { startWorkout } from "@/app/(app)/actions";
 
@@ -13,18 +14,23 @@ export default async function PlanDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: routine }, { data: routineExercises }] = await Promise.all([
-    supabase
-      .from("routines")
-      .select("id, name, weekdays")
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("routine_exercises")
-      .select("id, target_sets, target_reps, exercises(id, name)")
-      .eq("routine_id", id)
-      .order("position", { ascending: true }),
-  ]);
+  const [{ data: routine }, { data: routineExercises }, { data: allExercises }] =
+    await Promise.all([
+      supabase
+        .from("routines")
+        .select("id, name, weekdays")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("routine_exercises")
+        .select("id, target_sets, target_reps, exercises(id, name)")
+        .eq("routine_id", id)
+        .order("position", { ascending: true }),
+      supabase
+        .from("exercises")
+        .select("id, name, muscle_group")
+        .order("name", { ascending: true }),
+    ]);
 
   if (!routine) {
     notFound();
@@ -82,15 +88,25 @@ export default async function PlanDetailPage({
                   {re.target_sets ?? "-"} x {re.target_reps ?? "-"}
                 </p>
               </div>
-              <form action={removeExercise}>
-                <input type="hidden" name="routineExerciseId" value={re.id} />
-                <Button type="submit" variant="ghost" size="sm">
-                  remove
-                </Button>
-              </form>
+              <div className="flex items-center gap-1">
+                <EditRoutineExerciseDrawer
+                  routineExercise={{
+                    id: re.id,
+                    name: re.exercises?.name ?? "exercise",
+                    target_sets: re.target_sets,
+                    target_reps: re.target_reps,
+                  }}
+                />
+                <form action={removeExercise}>
+                  <input type="hidden" name="routineExerciseId" value={re.id} />
+                  <Button type="submit" variant="ghost" size="sm">
+                    remove
+                  </Button>
+                </form>
+              </div>
             </div>
           ))}
-          <AddExerciseDrawer routineId={routine.id} />
+          <AddExerciseDrawer routineId={routine.id} exercises={allExercises ?? []} />
         </div>
       </div>
 
