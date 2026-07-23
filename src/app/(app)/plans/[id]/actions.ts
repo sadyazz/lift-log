@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 export async function addExercise(formData: FormData) {
   const routineId = formData.get("routineId") as string;
   const exerciseName = (formData.get("exerciseName") as string).trim();
+  const muscleGroup = (formData.get("muscleGroup") as string) || null;
+  const equipment = (formData.get("equipment") as string)?.trim() || null;
   const targetSets = formData.get("targetSets")
     ? Number(formData.get("targetSets"))
     : null;
@@ -36,7 +38,12 @@ export async function addExercise(formData: FormData) {
   if (!exerciseId) {
     const { data: created, error } = await supabase
       .from("exercises")
-      .insert({ name: exerciseName, user_id: user.id })
+      .insert({
+        name: exerciseName,
+        user_id: user.id,
+        muscle_group: muscleGroup,
+        equipment,
+      })
       .select("id")
       .single();
 
@@ -67,6 +74,53 @@ export async function addExercise(formData: FormData) {
 
   if (insertError) {
     throw new Error(insertError.message);
+  }
+
+  refresh();
+}
+
+export async function addExistingExercise(formData: FormData) {
+  const routineId = formData.get("routineId") as string;
+  const exerciseId = formData.get("exerciseId") as string;
+
+  const supabase = await createClient();
+
+  const { data: lastExercise } = await supabase
+    .from("routine_exercises")
+    .select("position")
+    .eq("routine_id", routineId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextPosition = (lastExercise?.position ?? -1) + 1;
+
+  const { error } = await supabase.from("routine_exercises").insert({
+    routine_id: routineId,
+    exercise_id: exerciseId,
+    position: nextPosition,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  refresh();
+}
+
+export async function updateRoutineExercise(formData: FormData) {
+  const routineExerciseId = formData.get("routineExerciseId") as string;
+  const targetSets = formData.get("targetSets") ? Number(formData.get("targetSets")) : null;
+  const targetReps = formData.get("targetReps") ? Number(formData.get("targetReps")) : null;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("routine_exercises")
+    .update({ target_sets: targetSets, target_reps: targetReps })
+    .eq("id", routineExerciseId);
+
+  if (error) {
+    throw new Error(error.message);
   }
 
   refresh();
